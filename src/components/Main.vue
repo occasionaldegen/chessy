@@ -47,6 +47,7 @@ const NETWORKS = {
     localhost: "http://127.0.0.1:8899",
 };
 
+export const BASE = "XBSEKuwLduP8A95EDxFYxmQ9whW6eXqtJGC6ayk2Uee";
 export const CHESSBOARD = "5H9EHYmaN7ecetWUEdXR6484xm3rWraHVzXV9Aq8fxYR";
 export const WALLET_W = "[16,247,81,151,78,116,109,56,154,200,27,69,82,194,125,120,182,136,162,167,81,99,15,89,35,175,81,47,165,96,104,242,249,161,238,52,175,61,240,220,100,207,207,244,172,42,105,196,171,242,237,22,41,113,177,43,39,102,78,86,208,187,66,173]";
 export const WALLET_B = "[47,133,83,206,214,50,96,2,23,173,225,3,255,91,35,5,125,15,207,155,45,129,132,37,164,172,54,169,255,168,91,105,5,55,101,139,77,18,229,212,15,54,64,149,214,27,28,234,156,139,199,199,4,150,127,228,203,15,103,76,237,248,200,115]";
@@ -66,6 +67,7 @@ export default {
             chessboardAddress: new w3.PublicKey(CHESSBOARD),
             chessboard: null,
             game: new Chess(),
+            ply: 0,
         }
     },
     watch: {
@@ -111,6 +113,8 @@ export default {
             var start = 53; // 32 + 8 * 2 + 1 + 4
             let chessboardBytes = chessAccountInfo.data.slice(start,start+73);
             let turn = {0: 'w', 1: 'b'}[chessboardBytes[72]];
+            this.ply = (chessboardBytes[71]-1) * 2;  // legal_chess starts at 1
+            if (turn == 'b') this.ply += 1;
             let pos = ChessBoard.objToFen(this.getPosition(chessboardBytes)) + ' ' + turn + ' KQkq - 0 1';
             console.log('Loading pos', pos);
             this.game.load(pos);
@@ -138,6 +142,8 @@ export default {
             promotion: 'q' // NOTE: always promote to a queen for example simplicity
           })
           if (move === null) return 'snapback';
+
+          this.ply += 1;
           let cmap = {
             'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'g':6,'h':7,
             '1':0,'2':1,'3':2,'4':3,'5':4,'6':5,'7':6,'8':7,
@@ -145,8 +151,7 @@ export default {
           let nSource = cmap[source[1]]*8 + cmap[source[0]];
           let nTarget = cmap[target[1]]*8 + cmap[target[0]];
           console.log("from", source, "to", target);
-          console.log("from", nSource, "to", nTarget);
-          voteMove(nSource, nTarget, this.game.history().length - 1, {'b':'w','w':'b'}[this.game.turn()]);
+          voteMove(nSource, nTarget, this.ply-1, {'b':'w','w':'b'}[this.game.turn()]);
         },
         onSnapEnd () {
           this.chessboard.position(this.game.fen())
@@ -496,13 +501,10 @@ async function awaitTransactionSignatureConfirmation(
   return status;
 }
 
-export const BASE = new PublicKey(
-    "XBSEKuwLduP8A95EDxFYxmQ9whW6eXqtJGC6ayk2Uee"
-);
-
 async function voteMove(from, to, ply, turn) {
   console.log("VOTING MOVE");
-  const base_address = BASE;
+  console.log("from", from, "to", to, "ply", ply, "turn", turn);
+  const base_address = new PublicKey(BASE);
   const keypairString = (turn == 'b') ? WALLET_B : WALLET_W;
   const walletKeyPair = Keypair.fromSecretKey(
       new Uint8Array(JSON.parse(keypairString))
