@@ -48,7 +48,10 @@ const NETWORKS = {
 };
 
 export const BASE = "XBSEKuwLduP8A95EDxFYxmQ9whW6eXqtJGC6ayk2Uee";
-export const CHESSBOARD = "5H9EHYmaN7ecetWUEdXR6484xm3rWraHVzXV9Aq8fxYR";
+// export const CHESSBOARD = "9mrMqbKfUWqxrcmUf2TbgNkQQy6sftBRZwyHRmHdmQgS";
+// export const CHESS_PROGRAM_ID = new PublicKey("CH2zfqBxTXbuCgwRez3XBKtz5TYKUXZyuxyJ93ShCJJ7");
+export const CHESSBOARD = "96MTg6pDFSAGcaE2TNE44F2g318vQxUdAs1Nxyugctzi";
+export const CHESS_PROGRAM_ID = new PublicKey("CH32a1fDqtAzBixHb3fpa9PidUianoLvykUjCz3g3APL");
 export const WALLET_W = "[16,247,81,151,78,116,109,56,154,200,27,69,82,194,125,120,182,136,162,167,81,99,15,89,35,175,81,47,165,96,104,242,249,161,238,52,175,61,240,220,100,207,207,244,172,42,105,196,171,242,237,22,41,113,177,43,39,102,78,86,208,187,66,173]";
 export const WALLET_B = "[47,133,83,206,214,50,96,2,23,173,225,3,255,91,35,5,125,15,207,155,45,129,132,37,164,172,54,169,255,168,91,105,5,55,101,139,77,18,229,212,15,54,64,149,214,27,28,234,156,139,199,199,4,150,127,228,203,15,103,76,237,248,200,115]";
 export const ENV = "devnet";
@@ -194,8 +197,6 @@ export default {
 import {clusterApiUrl, Connection, Keypair, PublicKey, Transaction, TransactionInstruction} from "@solana/web3.js";
 import {serialize} from "borsh";
 import * as fs from "fs";
-
-export const CHESS_PROGRAM_ID = new PublicKey("CH2zfqBxTXbuCgwRez3XBKtz5TYKUXZyuxyJ93ShCJJ7");
 
 export class ChessVoteInstructionData  {
   constructor(args) {
